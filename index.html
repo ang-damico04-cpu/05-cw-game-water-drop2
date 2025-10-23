@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Water Drop Game</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- Add Google Fonts Spectral, Pacifico, and Lato -->
+    <!-- Add Google Fonts Spectral, Pacifico, Lato and Lexend -->
     <link href="https://fonts.googleapis.com/css?family=Spectral:400,700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="game-wrapper">
@@ -18,12 +19,26 @@
         <div class="score-panel">
             <div class="score">Score: <span id="score">0</span></div>
             <div class="timer">Time: <span id="time">30</span>s</div>
+
+            <!-- Difficulty selector -->
+            <div class="difficulty" aria-label="Select difficulty">
+                Difficulty:
+                <label><input type="radio" name="difficulty" value="easy"> Easy</label>
+                <label><input type="radio" name="difficulty" value="medium" checked> Medium</label>
+                <label><input type="radio" name="difficulty" value="hard"> Hard</label>
+            </div>
+
             <button id="start-btn">Start Game</button>
         </div>
         
         <div id="game-container">
         </div>
     </div>
+
+    <!-- Footer with charity: water link -->
+    <footer class="site-footer">
+        <a href="https://www.charitywater.org/" target="_blank" rel="noopener noreferrer">click to learn more about charity: water</a>
+    </footer>
     
     <script>
         // Block VS Code Live Preview injected WebSocket connections to avoid

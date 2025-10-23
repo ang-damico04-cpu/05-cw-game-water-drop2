@@ -9,6 +9,11 @@ let score = 0;
 let time = 30;
 let timerInterval;
 
+// Difficulty-related defaults (will be overridden by selection)
+let spawnIntervalDefault = 1000;
+let fallDurationDefault = 4; // seconds
+let badDropChanceDefault = 0.1;
+
 // Winning and losing messages
 const winningMessages = [
   "Great job! You caught enough drops!",
@@ -28,6 +33,17 @@ const losingMessages = [
 // Wait for button click to start the game
 document.getElementById("start-btn").addEventListener("click", startGame);
 
+function getDifficultySettings() {
+  const sel = document.querySelector('input[name="difficulty"]:checked')?.value || "medium";
+  if (sel === "easy") {
+    return { spawnInterval: 1200, fallDuration: 5, badDropChance: 0.05 };
+  } else if (sel === "hard") {
+    return { spawnInterval: 600, fallDuration: 3, badDropChance: 0.2 };
+  } else { // medium
+    return { spawnInterval: 900, fallDuration: 4, badDropChance: 0.1 };
+  }
+}
+
 function startGame() {
   // Prevent multiple games from running at once
   if (gameRunning) return;
@@ -40,11 +56,23 @@ function startGame() {
   document.getElementById("score").textContent = score;
   document.getElementById("time").textContent = time;
 
+  // Clear any leftover drops and previous message
+  const container = document.getElementById("game-container");
+  container.querySelectorAll(".water-drop, .score-popup").forEach(n => n.remove());
+  const oldMsg = document.getElementById("result-message");
+  if (oldMsg) oldMsg.remove();
+
+  // Get difficulty settings and apply
+  const settings = getDifficultySettings();
+  spawnIntervalDefault = settings.spawnInterval;
+  fallDurationDefault = settings.fallDuration;
+  badDropChanceDefault = settings.badDropChance;
+
   // Start timer countdown
   timerInterval = setInterval(updateTimer, 1000);
 
-  // Create new drops every second (1000 milliseconds)
-  dropMaker = setInterval(createDrop, 1000);
+  // Create new drops based on selected spawn interval
+  dropMaker = setInterval(createDrop, spawnIntervalDefault);
 }
 
 function updateTimer() {
@@ -75,11 +103,11 @@ function endGame() {
   if (score >= 20) {
     const msg = winningMessages[Math.floor(Math.random() * winningMessages.length)];
     messageDiv.textContent = msg;
-    messageDiv.style.color = "green";
+    messageDiv.style.color = "#FFC907";
   } else {
     const msg = losingMessages[Math.floor(Math.random() * losingMessages.length)];
     messageDiv.textContent = msg;
-    messageDiv.style.color = "red";
+    messageDiv.style.color = "#BF6C46"; // updated losing color
   }
 }
 
@@ -98,16 +126,21 @@ function createDrop() {
   drop.style.width = drop.style.height = `${size}px`;
 
   // Position the drop randomly across the game width
-  // Subtract 60 pixels to keep drops fully inside the container
-  const gameWidth = document.getElementById("game-container").offsetWidth;
-  const xPosition = Math.random() * (gameWidth - 60);
+  const gameContainer = document.getElementById("game-container");
+  const gameWidth = gameContainer.offsetWidth;
+  const xPosition = Math.random() * Math.max(0, (gameWidth - size));
   drop.style.left = xPosition + "px";
 
-  // Make drops fall for 4 seconds
-  drop.style.animationDuration = "4s";
+  // Set animation duration from difficulty
+  drop.style.animationDuration = `${fallDurationDefault}s`;
+
+  // Chance to be a bad drop based on difficulty
+  if (Math.random() < badDropChanceDefault) {
+    drop.classList.add("bad-drop");
+  }
 
   // Add the new drop to the game screen
-  document.getElementById("game-container").appendChild(drop);
+  gameContainer.appendChild(drop);
 
   // Remove drops that reach the bottom (weren't clicked)
   drop.addEventListener("animationend", () => {
@@ -122,26 +155,32 @@ function createDrop() {
     if (drop.dataset.clicked === "true") return;
     drop.dataset.clicked = "true";
 
-    // Update score and DOM safely
-    score += 1;
     const scoreEl = document.getElementById("score");
+
+    // Determine if drop is bad
+    const isBad = drop.classList.contains("bad-drop");
+    if (!isBad) {
+      score += 1;
+    } else {
+      score = Math.max(0, score - 1); // penalize but don't go below 0
+    }
     if (scoreEl) scoreEl.textContent = score;
 
-    // Create a brief "+1" floating popup at click position
+    // Create a brief floating popup at click position
     const popup = document.createElement("span");
-    popup.textContent = "+1";
+    popup.textContent = isBad ? "-1" : "+1";
     popup.style.position = "absolute";
     popup.style.pointerEvents = "none";
     popup.style.fontWeight = "bold";
-    popup.style.color = "blue";
-    popup.style.left = (e.clientX - document.getElementById("game-container").getBoundingClientRect().left) + "px";
-    popup.style.top = (e.clientY - document.getElementById("game-container").getBoundingClientRect().top) + "px";
+    popup.style.color = isBad ? "#BF6C46" : "#003366";
+    popup.style.left = (e.clientX - gameContainer.getBoundingClientRect().left) + "px";
+    popup.style.top = (e.clientY - gameContainer.getBoundingClientRect().top) + "px";
     popup.style.transition = "transform 600ms ease-out, opacity 600ms ease-out";
     popup.style.transform = "translateY(0px)";
     popup.style.opacity = "1";
     popup.className = "score-popup";
 
-    document.getElementById("game-container").appendChild(popup);
+    gameContainer.appendChild(popup);
 
     // Trigger animation (move up and fade)
     requestAnimationFrame(() => {

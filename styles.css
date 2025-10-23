@@ -26,11 +26,13 @@ Fonts:
 
 body {
     display: flex;
-    justify-content: center;
+    flex-direction: column;              /* stack content vertically */
+    justify-content: space-between;      /* push footer to the bottom when space permits */
     align-items: center;
     min-height: 100vh;
     background-color: #fff7e1;
-    font-family: 'Spectral', serif;
+    font-family: 'Lexend', sans-serif;
+    padding: 20px 0;                     /* give breathing room so footer isn't flush */
 }
 
 .game-wrapper {
@@ -38,6 +40,7 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 20px;
+    flex: 1 0 auto;                      /* allow wrapper to grow so footer is pushed to bottom */
 }
 
 .score-panel {
@@ -49,6 +52,23 @@ body {
     background-color: #fffdf6;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Difficulty control styling */
+.difficulty {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 16px;
+    margin: 0 8px;
+}
+.difficulty label {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    cursor: pointer;
+    font-family: 'Lexend', sans-serif;
+    font-weight: 400;
 }
 
 .timer {
@@ -106,7 +126,7 @@ body {
 }
 
 .bad-drop {
-    background-color: #ff4444;
+    background-color: #BF6C46;
 }
 
 .game-title {
@@ -123,7 +143,7 @@ body {
     font-size: 18px;
     margin-bottom: 20px;
     text-align: center;
-    font-family: 'Lato', serif;
+    font-family: 'Lexend', sans-serif;
 }
 
 .logo {
@@ -138,7 +158,7 @@ body {
 .timer,
 #start-btn,
 #result-message {
-    font-family: 'Lato', serif;
+    font-family: 'Lexend', sans-serif;
     font-weight: 400;
 }
 
@@ -158,5 +178,30 @@ body {
     
     #game-container {
         height: 70vh;
+    }
+}
+
+/* Footer */
+.site-footer {
+    width: 800px;
+    margin-top: 18px;
+    padding: 10px 0;
+    text-align: center;
+    font-family: 'Lexend', sans-serif;
+    color: #333;
+    flex: 0 0 auto;                      /* ensure footer does not grow */
+}
+.site-footer a {
+    color: rgb(255, 206, 46); /* brand blue */
+    text-decoration: none;
+    font-weight: 500;
+}
+.site-footer a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 850px) {
+    .site-footer {
+        width: 95vw;
     }
 }
