@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Drop Game</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Add Google Fonts Spectral, Pacifico, and Lato -->
+    <link href="https://fonts.googleapis.com/css?family=Spectral:400,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="game-wrapper">
+        <img src="img/cw_logo-horizontal.png" alt="charity: water" class="logo">
+        <h1 class="game-title">Water Drop</h1>
+        <p class="game-tagline">Catch the good drops, avoid the bad ones!</p>
+        <div class="score-panel">
+            <div class="score">Score: <span id="score">0</span></div>
+            <div class="timer">Time: <span id="time">30</span>s</div>
+            <button id="start-btn">Start Game</button>
+        </div>
+        
+        <div id="game-container">
+        </div>
+    </div>
+    
+    <script>
+        // Block VS Code Live Preview injected WebSocket connections to avoid
+        // the console error when the Live Preview backend isn't available.
+        // This only intercepts obvious Live Preview hosts/paths (app.github.dev,
+        // urls that include "___vscode_livepreview" or common preview ports).
+        (function() {
+            try {
+                var OriginalWebSocket = window.WebSocket;
+                if (!OriginalWebSocket) return;
+
+                function isLivePreviewUrl(url) {
+                    try {
+                        if (!url || typeof url !== 'string') return false;
+                        return url.includes('app.github.dev') || url.includes('___vscode_livepreview') || /:\/\/[^\s]*:3001/.test(url);
+                    } catch (e) { return false; }
+                }
+
+                function NoopSocket(url) {
+                    // Return a minimal mock that won't throw when the injected script
+                    // tries to attach handlers. readyState=3 (CLOSED).
+                    var self = this;
+                    self.url = url;
+                    self.readyState = 3;
+                    self.close = function(){};
+                    self.send = function(){};
+                    self.addEventListener = function(){};
+                    self.removeEventListener = function(){};
+                    self.dispatchEvent = function(){};
+                    // call onclose if set, async so it mimics a closed socket
+                    setTimeout(function(){ if (typeof self.onclose === 'function') try { self.onclose({wasClean:true}); } catch(e){} }, 0);
+                }
+
+                function WrappedWebSocket(url, protocols) {
+                    if (isLivePreviewUrl(url)) {
+                        console.info('[info] Blocked Live Preview WebSocket to', url);
+                        return new NoopSocket(url);
+                    }
+                    // delegate to the original WebSocket
+                    return protocols !== undefined ? new OriginalWebSocket(url, protocols) : new OriginalWebSocket(url);
+                }
+
+                // Copy constants and prototype so normal checks work
+                WrappedWebSocket.prototype = OriginalWebSocket.prototype;
+                WrappedWebSocket.CONNECTING = OriginalWebSocket.CONNECTING;
+                WrappedWebSocket.OPEN = OriginalWebSocket.OPEN;
+                WrappedWebSocket.CLOSING = OriginalWebSocket.CLOSING;
+                WrappedWebSocket.CLOSED = OriginalWebSocket.CLOSED;
+
+                window.WebSocket = WrappedWebSocket;
+            } catch (e) {
+                // don't break the page if anything goes wrong
+                console.warn('WebSocket override failed:', e && e.message);
+            }
+        })();
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
